@@ -10,17 +10,13 @@ function MVVM(options) {
     });
 
     this._initComputed();
-
     observe(data, this);
 
-    this.$compile = new Compile(options.el || document.body, this)
+    this.$compile = new Compile(options.el || document.body, this);    
+    this._initWatch();
 }
 
 MVVM.prototype = {
-    $watch: function(key, cb, options) {
-        new Watcher(this, key, cb);
-    },
-
     _proxyData: function(key, setter, getter) {
         var me = this;
         setter = setter || 
@@ -47,6 +43,16 @@ MVVM.prototype = {
                             : computed[key].get,
                     set: function() {}
                 });
+            });
+        }
+    },
+    _initWatch: function(){
+        var me = this;
+        var watch = this.$options.watch;
+        if (typeof watch === 'object') {
+            Object.keys(watch).forEach(function(key) {
+                var cb = typeof watch[key]  === 'function' ? watch[key] : watch[key].get;
+                new Watcher(me, key, cb);
             });
         }
     }
