@@ -1,12 +1,10 @@
 function MVVM(options) {
     this.$options = options || {};
     var data = this._data = this.$options.data;
-    var me = this;
-
     // 数据代理
     // 实现 vm.xxx -> vm._data.xxx
-    Object.keys(data).forEach(function(key) {
-        me._proxyData(key);
+    Reflect.ownKeys(data).forEach((key)=>{
+        this._proxyData(key);
     });
 
     this._initComputed();
@@ -17,27 +15,24 @@ function MVVM(options) {
 }
 
 MVVM.prototype = {
-    _proxyData: function(key, setter, getter) {
-        var me = this;
-        setter = setter || 
-        Object.defineProperty(me, key, {
+    _proxyData: function(key) {
+        Reflect.defineProperty(this, key, {
             configurable: false,
             enumerable: true,
-            get: function proxyGetter() {
-                return me._data[key];
+            get: function () {
+                return this._data[key];
             },
-            set: function proxySetter(newVal) {
-                me._data[key] = newVal;
+            set: function (newVal) {
+                this._data[key] = newVal;
             }
         });
     },
 
     _initComputed: function() {
-        var me = this;
         var computed = this.$options.computed;
         if (typeof computed === 'object') {
-            Object.keys(computed).forEach(function(key) {
-                Object.defineProperty(me, key, {
+            Reflect.ownKeys(computed).forEach((key) => {
+                Reflect.defineProperty(this, key, {
                     get: typeof computed[key] === 'function' 
                             ? computed[key] 
                             : computed[key].get,
@@ -47,12 +42,11 @@ MVVM.prototype = {
         }
     },
     _initWatch: function(){
-        var me = this;
         var watch = this.$options.watch;
         if (typeof watch === 'object') {
-            Object.keys(watch).forEach(function(key) {
+            Reflect.ownKeys(watch).forEach((key) => {
                 var cb = typeof watch[key]  === 'function' ? watch[key] : watch[key].get;
-                new Watcher(me, key, cb);
+                new Watcher(this, key, cb);
             });
         }
     }

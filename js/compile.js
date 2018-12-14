@@ -27,41 +27,38 @@ Compile.prototype = {
     },
 
     compileElement: function(el) {
-        var childNodes = el.childNodes,
-            me = this;
-
-        [].slice.call(childNodes).forEach(function(node) {
+        var childNodes = el.childNodes;
+        [].slice.call(childNodes).forEach((node) => {
             var text = node.textContent;
             var reg = /\{\{(.*)\}\}/;
 
-            if (me.isElementNode(node)) {
-                me.compile(node);
+            if (this.isElementNode(node)) {
+                this.compile(node);
 
-            } else if (me.isTextNode(node) && reg.test(text)) {
-                me.compileText(node, RegExp.$1);
+            } else if (this.isTextNode(node) && reg.test(text)) {
+                this.compileText(node, RegExp.$1);
             }
 
             if (node.childNodes && node.childNodes.length) {
-                me.compileElement(node);
+                this.compileElement(node);
             }
         });
     },
 
     compile: function(node) {
-        var nodeAttrs = node.attributes,
-            me = this;
+        var nodeAttrs = node.attributes;
 
-        [].slice.call(nodeAttrs).forEach(function(attr) {
+        [].slice.call(nodeAttrs).forEach((attr) => {
             var attrName = attr.name;
-            if (me.isDirective(attrName)) {
+            if (this.isDirective(attrName)) {
                 var exp = attr.value;
                 var dir = attrName.substring(2);
                 // 事件指令
-                if (me.isEventDirective(dir)) {
-                    compileUtil.eventHandler(node, me.$vm, exp, dir);
+                if (this.isEventDirective(dir)) {
+                    compileUtil.eventHandler(node, this.$vm, exp, dir);
                     // 普通指令
                 } else {
-                    compileUtil[dir] && compileUtil[dir](node, me.$vm, exp);
+                    compileUtil[dir] && compileUtil[dir](node, this.$vm, exp);
                 }
 
                 node.removeAttribute(attrName);

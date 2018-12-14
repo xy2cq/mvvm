@@ -5,9 +5,8 @@ function Observer(data) {
 
 Observer.prototype = {
     walk: function(data) {
-        var me = this;
-        Object.keys(data).forEach(function(key) {
-            me.convert(key, data[key]);
+        Object.keys(data).forEach((key) => {
+            this.convert(key, data[key]);
         });
     },
     convert: function(key, val) {
@@ -18,7 +17,7 @@ Observer.prototype = {
         var dep = new Dep();
         var childObj = observe(val);
 
-        Object.defineProperty(data, key, {
+        Reflect.defineProperty(data, key, {
             enumerable: true, // 可枚举
             configurable: false, // 不能再define
             get: function() {
